@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notes de cours — Sessions</title>
+  <meta name="description" content="Notes de cours interactives avec table des matières, onglets et chapitres thématiques." />
+  <style>
+    /* ------------------------------
+       Variables & Reset
+    -------------------------------*/
+    :root{
+      --bg: #0b0c10;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-2:#06b6d4;
+      --link: #2563eb;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(0,0,0,.12);
+      --content-max: 80ch;
+      --space-1: .25rem;
+      --space-2: .5rem;
+      --space-3: .75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --topbar-h: 56px;
+      --toc-w: 300px;
+      --bp-md: 768px;
+      --bp-lg: 1024px;
+      --focus: 0 0 0 3px rgba(37,99,235,.35);
+    }
+
+    *,*::before,*::after{ box-sizing: border-box; }
+    html{ scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce){
+      html{ scroll-behavior: auto; }
+    }
+    body{
+      margin: 0;
+      color: var(--ink);
+      background: #f5f7fb;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      line-height: 1.6;
+      font-size: 18px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    img,svg,video{ max-width: 100%; height: auto; }
+
+    a{ color: var(--link); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* ------------------------------
+       Topbar + bouton TOC
+    -------------------------------*/
+    .topbar{
+      position: sticky; top: 0; z-index: 1000;
+      height: var(--topbar-h);
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: 0 var(--space-4);
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffffcc;
+      backdrop-filter: blur(8px);
+    }
+    .brand{
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .toc-toggle{
+      border: none; background: transparent; padding: var(--space-2);
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 10px; cursor: pointer;
+    }
+    .toc-toggle:focus-visible{ outline: none; box-shadow: var(--focus); }
+    .hamburger{ width: 28px; height: 2px; background: var(--ink); position: relative; border-radius: 2px; }
+    .hamburger::before,.hamburger::after{
+      content: ""; position: absolute; left: 0; right:0; height: 2px; background: var(--ink); border-radius: 2px;
+    }
+    .hamburger::before{ top: -8px; }
+    .hamburger::after{ top: 8px; }
+
+    .spacer{ flex: 1; }
+    .search-mini{
+      display: none;
+    }
+    @media (min-width: 560px){
+      .search-mini{ display: inline-flex; gap: .5rem; align-items: center; background: #f3f4f6; border: 1px solid #e5e7eb; padding: .35rem .6rem; border-radius: 999px; color: #6b7280; }
+      .search-mini input{ border: none; background: transparent; outline: none; min-width: 140px; }
+    }
+
+    /* ------------------------------
+       Layout principal
+    -------------------------------*/
+    .app{
+      display: grid;
+      grid-template-columns: 0 1fr; /* TOC fermé par défaut en mobile */
+      transition: grid-template-columns .22s ease;
+      min-height: 100vh;
+    }
+    .app.toc-open{
+      grid-template-columns: var(--toc-w) 1fr;
+    }
+    @media (min-width: 1024px){
+      .app{ grid-template-columns: var(--toc-w) 1fr; }
+    }
+
+    /* ------------------------------
+       TOC latéral + onglets
+    -------------------------------*/
+    nav.toc{
+      position: sticky; top: var(--topbar-h);
+      align-self: start;
+      height: calc(100vh - var(--topbar-h));
+      border-right: 1px solid #e5e7eb;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: inset -1px 0 0 #e5e7eb;
+    }
+    .toc-inner{
+      height: 100%; overflow: auto; padding: var(--space-4);
+    }
+    .tabs{
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--space-4);
+      height: 100%;
+    }
+    .tablist{
+      display: grid; grid-auto-flow: column; gap: var(--space-3);
+      background: #f3f4f6; padding: var(--space-2); border-radius: 8px;
+    }
+    .tablist button{
+      border: none; background: transparent; padding: .5rem .75rem; border-radius: 8px; cursor: pointer; color: #374151; font-weight: 600;
+    }
+    .tablist button[aria-selected="true"]{ background: #ffffff; box-shadow: 0 1px 0 #e5e7eb, 0 4px 12px rgba(0,0,0,.04); }
+    .tabpanel{ display: none; }
+    .tabpanel.active{ display: block; }
+    .toc ul{ list-style: none; margin: 0; padding: 0; }
+    .toc li{ margin: .25rem 0; }
+    .toc a{
+      display: block; padding: .4rem .5rem; border-radius: 8px; color: #111827; text-decoration: none;
+    }
+    .toc a:hover{ background: #f3f4f6; text-decoration: none; }
+    .toc a.active{ background: #e0ecff; color: #1d4ed8; font-weight: 700; }
+
+    .keyword-badges{ display: flex; flex-wrap: wrap; gap: .5rem; }
+    .badge{
+      font-size: .85rem; background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; padding: .25rem .5rem; border-radius: 999px; cursor: pointer;
+    }
+
+    /* ------------------------------
+       Contenu
+    -------------------------------*/
+    main{
+      padding: var(--space-6);
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .section{
+      background: #fff; border: 1px solid #e5e7eb; border-radius: var(--radius);
+      padding: clamp(1rem, 2.5vw, 2rem);
+      margin: 0 auto var(--space-8);
+      box-shadow: var(--shadow);
+    }
+    .section > header h2{
+      margin: 0 0 .25rem;
+      font-size: clamp(1.35rem, 1.5vw + .9rem, 2rem);
+    }
+    .section > header p{ color: var(--muted); margin-top: 0; }
+
+    /* ------------------------------
+       Couverture (style proche de l'image)
+    -------------------------------*/
+    .cover{
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      padding: clamp(1rem, 3vw, 2.5rem);
+      box-shadow: var(--shadow);
+    }
+    .cover-top{
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: start;
+      gap: var(--space-4);
+    }
+    .logo-box{
+      min-height: 64px;
+      border-left: 6px solid #1da1f2;
+      padding-left: .75rem;
+      display: flex; align-items: center; gap: .5rem;
+      color: #2563eb;
+      font-weight: 700;
+    }
+    .logo-sub{ display:block; color:#6b7280; font-weight:600; font-size:.9rem; }
+    .session{
+      grid-column: 3; text-align: right; color: #6b7280; white-space: nowrap;
+    }
+
+    .cover-title{
+      margin: var(--space-8) 0 var(--space-6);
+      text-align: center;
+    }
+    .cover-title h1{
+      margin: 0 0 .25rem;
+      font-size: clamp(1.4rem, 2vw + 1rem, 2.2rem);
+      letter-spacing: .2px;
+    }
+    .cover-title h1 + .code{
+      font-weight: 800; letter-spacing: 1px; color: #111827;
+    }
+    .cover-meta{
+      text-align: center; color: #374151; margin-bottom: var(--space-8);
+    }
+    .cover-meta .dim{ color: #6b7280; }
+    .name-line{
+      margin: var(--space-10) auto var(--space-6); max-width: 460px; text-align: center;
+    }
+    .name-line .label{ color:#374151; display:block; margin-bottom: .35rem; }
+    .name-line hr{ border: none; border-top: 2px solid #d1d5db; }
+
+    .teacher{
+      text-align: center; margin: var(--space-6) 0 var(--space-8);
+    }
+    .teacher .line{
+      display: inline-flex; align-items: center; gap: .5rem; color:#374151;
+    }
+    .teacher .line::before,.teacher .line::after{
+      content:""; width: 120px; height: 1px; background: #d1d5db;
+    }
+
+    .rules{
+      max-width: 700px; margin: 0 auto var(--space-10);
+    }
+    .rules h3{
+      margin: 0 0 .25rem; font-size: 1.05rem;
+    }
+    .rules ul{ margin: .5rem 0 0 1.25rem; }
+    .alert{ color:#b91c1c; font-weight: 800; }
+
+    .result{
+      text-align: center; font-size: 1.05rem; margin-top: var(--space-8); color:#111827;
+    }
+    .result .box{
+      display: inline-block; padding: .35rem .75rem; border: 2px dashed #94a3b8; border-radius: 10px; background: #f8fafc;
+    }
+
+    /* ------------------------------
+       Thèmes par chapitre
+       -> Chaque section.chapter définit ses variables
+    -------------------------------*/
+    .chapter{
+      border: none; box-shadow: none; color: var(--theme-ink); background: var(--theme-bg);
+      font-family: var(--theme-font, inherit);
+      transition: background .25s ease, color .25s ease;
+    }
+    .chapter .card{
+      background: color-mix(in oklab, var(--theme-card, #ffffff) 92%, black 0%);
+      border: 1px solid color-mix(in oklab, var(--theme-card, #ffffff) 80%, black 10%);
+      border-radius: 14px; padding: 1rem; box-shadow: 0 6px 24px rgba(0,0,0,.08);
+    }
+    .chapter header h2{
+      color: var(--theme-title, #0f172a);
+      text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    }
+    .chapter a{ color: var(--theme-link, #1d4ed8); }
+    .chapter .accent{ color: var(--theme-accent, #1d4ed8); font-weight: 800; }
+
+    /* Python */
+    #python{
+      --theme-bg: #0b1220;
+      --theme-ink: #e2e8f0;
+      --theme-title:#93c5fd;
+      --theme-link:#7dd3fc;
+      --theme-accent:#60a5fa;
+      --theme-card:#0f172a;
+      --theme-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    /* RPi */
+    #rpi{
+      --theme-bg: #121212;
+      --theme-ink: #f5f5f5;
+      --theme-title:#ff7b7b;
+      --theme-link:#f59e0b;
+      --theme-accent:#22c55e;
+      --theme-card:#1b1b1b;
+      --theme-font: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-image: radial-gradient(20% 50% at 20% 0%, rgba(255,0,92,0.20), transparent 60%),
+                        radial-gradient(16% 40% at 100% 10%, rgba(255,196,0,0.16), transparent 60%);
+      background-blend-mode: screen;
+    }
+    /* Git */
+    #git{
+      --theme-bg: #fff7ed;
+      --theme-ink: #2b2b2b;
+      --theme-title:#ea580c;
+      --theme-link:#b91c1c;
+      --theme-accent:#ea580c;
+      --theme-card:#ffffff;
+      --theme-font: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    /* SQL */
+    #sql{
+      --theme-bg: #ecfeff;
+      --theme-ink: #083344;
+      --theme-title:#0284c7;
+      --theme-link:#0369a1;
+      --theme-accent:#0891b2;
+      --theme-card:#ffffff;
+      --theme-font: "IBM Plex Sans", system-ui, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    /* JSON */
+    #json{
+      --theme-bg: #f0fdf4;
+      --theme-ink: #052e16;
+      --theme-title:#16a34a;
+      --theme-link:#15803d;
+      --theme-accent:#22c55e;
+      --theme-card:#ffffff;
+      --theme-font: "Source Code Pro", ui-monospace, Menlo, Consolas, monospace;
+    }
+    /* Écran tactile */
+    #touch{
+      --theme-bg: #eef2ff;
+      --theme-ink: #111827;
+      --theme-title:#4338ca;
+      --theme-link:#4338ca;
+      --theme-accent:#7c3aed;
+      --theme-card:#ffffff;
+      --theme-font: "SF Pro Text", Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Titres de section dans chapitres */
+    .chapter header{ margin-bottom: .5rem; }
+    .chapter header p{ margin: 0; opacity: .85; }
+
+    /* Utilitaires */
+    .muted{ color: var(--muted); }
+    .grid-2{
+      display: grid; gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 800px){
+      .grid-2{ grid-template-columns: 1fr 1fr; }
+    }
+    .kbd{ font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; background: #111827; color: #f8fafc; padding: .1rem .35rem; border-radius: 6px; }
+
+    /* Impression (optionnel) */
+    @media print{
+      .topbar, nav.toc, .toc-toggle{ display: none !important; }
+      main{ padding: 0; }
+      .section, .chapter{ box-shadow: none; border: none; page-break-inside: avoid; }
+    }
+
+    /* Lien "Passer au contenu" pour accessibilité */
+    .skip-link{
+      position: absolute; left: -9999px; top: -9999px;
+    }
+    .skip-link:focus{
+      left: .5rem; top: .5rem; background:#111827; color:#fff; padding:.5rem .75rem; border-radius:8px; z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenu">Passer au contenu</a>
+
+  <header class="topbar" role="banner">
+    <button id="tocToggle" class="toc-toggle" aria-expanded="false" aria-controls="toc" title="Ouvrir/fermer la table des matières">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+    <div class="brand">Notes de cours</div>
+    <div class="spacer"></div>
+    <label class="search-mini" aria-label="Rechercher (démo)">
+      🔎 <input type="search" placeholder="Rechercher…" aria-label="Rechercher" disabled />
+    </label>
+  </header>
+
+  <div class="app" id="app">
+    <!-- TOC -->
+    <nav id="toc" class="toc" aria-label="Table des matières">
+      <div class="toc-inner">
+        <div class="tabs" role="tablist" aria-label="Onglets de navigation">
+          <div class="tablist" role="tablist">
+            <button id="tab-chapitres" role="tab" aria-selected="true" aria-controls="panel-chapitres">Chapitres</button>
+            <button id="tab-mots" role="tab" aria-selected="false" aria-controls="panel-mots">Mots-clés</button>
+          </div>
+
+          <section id="panel-chapitres" class="tabpanel active" role="tabpanel" aria-labelledby="tab-chapitres">
+            <ul id="tocList" class="toc-list">
+              <!-- Rempli dynamiquement -->
+            </ul>
+          </section>
+
+          <section id="panel-mots" class="tabpanel" role="tabpanel" aria-labelledby="tab-mots" tabindex="0">
+            <div class="keyword-badges" id="keywords">
+              <!-- Démo de tags rapides -->
+              <button class="badge" data-jump="#python">python</button>
+              <button class="badge" data-jump="#rpi">raspberry&nbsp;pi</button>
+              <button class="badge" data-jump="#git">git</button>
+              <button class="badge" data-jump="#sql">sql</button>
+              <button class="badge" data-jump="#json">json</button>
+              <button class="badge" data-jump="#touch">écran tactile</button>
+            </div>
+            <p class="muted" style="margin-top:.75rem">Astuce : appuie sur un tag pour aller au chapitre correspondant.</p>
+          </section>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main id="contenu">
+      <!-- Couverture (ressemble à l'image fournie) -->
+      <section class="cover" aria-label="Couverture">
+        <div class="cover-top">
+          <div class="logo-box" aria-label="Espace logo établissement">
+            <span>LOGO</span>
+            <span class="logo-sub">Cégep Gérald-Godin</span>
+          </div>
+          <div></div>
+          <div class="session">Session Hiver 2025</div>
+        </div>
+
+        <div class="cover-title">
+          <h1>Réaliser un projet de logiciel appliqué à la robotique</h1>
+          <div class="code">247-4B6-GG</div>
+        </div>
+
+        <div class="cover-meta">
+          <p><span class="dim">Évaluation :</span> Examen Final</p>
+          <p><span class="dim">Durée :</span> 2h &nbsp; • &nbsp; <span class="dim">Pondération :</span> 15 % de la session</p>
+        </div>
+
+        <div class="name-line">
+          <span class="label">Nom et prénom :</span>
+          <hr aria-hidden="true" />
+        </div>
+
+        <div class="teacher">
+          <div class="line"><span>Enseignant : <strong>Antoine Legault</strong></span></div>
+        </div>
+
+        <div class="rules">
+          <h3>Consignes d’examen</h3>
+          <ul>
+            <li>Documentation permise</li>
+            <li>Ordinateur du cégep permis</li>
+            <li>Le crayon à mine et les stylos sont permis</li>
+            <li class="alert">ATTENTION! Si 2 codes se ressemblent trop, ce sera considéré comme du plagiat</li>
+          </ul>
+        </div>
+
+        <div class="result">
+          <span class="box">Résultat : &nbsp;&nbsp; / 15</span>
+        </div>
+      </section>
+
+      <!-- Chapitres thématiques -->
+      <section id="python" class="chapter section" data-title="Python">
+        <header>
+          <h2>Python</h2>
+          <p class="muted">Bases, structures de données, environnements, tests.</p>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Environnements</h3>
+            <ul>
+              <li><span class="accent">venv</span> : <span class="kbd">python -m venv .venv</span>, activer et installer les dépendances.</li>
+              <li>Bonnes pratiques : <code>.gitignore</code> pour <code>.venv/</code> et <code>__pycache__/</code>.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Tests rapides</h3>
+            <pre><code># Exemple
+def pair(n: int) -> bool:
+    return n % 2 == 0
+
+assert pair(4)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="rpi" class="chapter section" data-title="RPi">
+        <header>
+          <h2>RPi</h2>
+          <p class="muted">GPIO, SSH, services, déploiement léger.</p>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <h3>SSH & mise à jour</h3>
+            <pre><code>sudo raspi-config
+sudo apt update && sudo apt upgrade -y</code></pre>
+          </div>
+          <div class="card">
+            <h3>GPIO</h3>
+            <pre><code># Python RPi.GPIO (exemple)
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="git" class="chapter section" data-title="Git">
+        <header>
+          <h2>Git</h2>
+          <p class="muted">Branches, commits signés, workflows.</p>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Workflow de base</h3>
+            <pre><code>git init
+git switch -c main
+git add .
+git commit -m "Init"</code></pre>
+          </div>
+          <div class="card">
+            <h3>Conseils</h3>
+            <ul>
+              <li>Commits atomiques, messages impératifs.</li>
+              <li><code>git stash</code> avant de changer de branche.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="sql" class="chapter section" data-title="SQL">
+        <header>
+          <h2>SQL</h2>
+          <p class="muted">Schémas, jointures, index.</p>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Création & index</h3>
+            <pre><code>CREATE TABLE etudiants(id INT PRIMARY KEY, nom TEXT);
+CREATE INDEX idx_nom ON etudiants(nom);</code></pre>
+          </div>
+          <div class="card">
+            <h3>Jointure</h3>
+            <pre><code>SELECT e.nom, c.cours
+FROM etudiants e
+JOIN cours c ON c.id_e=e.id;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="json" class="chapter section" data-title="JSON">
+        <header>
+          <h2>JSON</h2>
+          <p class="muted">Sérialisation, validation, schémas.</p>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Format</h3>
+            <pre><code>{"nom":"Antoine","cours":["Python","SQL"]}</code></pre>
+          </div>
+          <div class="card">
+            <h3>Python</h3>
+            <pre><code>import json
+data = json.loads('{"x":1}')
+txt  = json.dumps(data, ensure_ascii=False, indent=2)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="touch" class="chapter section" data-title="Écran tactile">
+        <header>
+          <h2>Écran tactile</h2>
+          <p class="muted">Gestes, cibles tactiles, UI réactive.</p>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Taille des cibles</h3>
+            <p>Recommandation : min 44×44 px, espacements généreux (Apple HIG & Material).</p>
+          </div>
+          <div class="card">
+            <h3>Gestes</h3>
+            <ul>
+              <li>Défilement vertical naturel.</li>
+              <li>Tap / long-press / swipe → feedback visuel.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-label="Fin">
+        <p class="muted">— Fin des notes —</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // -------------------------------
+    // TOC: génération + ouverture responsive + scroll spy + onglets
+    // -------------------------------
+
+    const app = document.getElementById('app');
+    const tocToggle = document.getElementById('tocToggle');
+    const toc = document.getElementById('toc');
+    const tocList = document.getElementById('tocList');
+
+    // Ouvrir par défaut si écran large
+    const mqLarge = window.matchMedia('(min-width: 1024px)');
+    function applyTOCDefault(e){
+      if(e.matches){
+        app.classList.add('toc-open');
+        tocToggle.setAttribute('aria-expanded', 'true');
+      }else{
+        app.classList.remove('toc-open');
+        tocToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+    applyTOCDefault(mqLarge);
+    mqLarge.addEventListener('change', applyTOCDefault);
+
+    // Bouton toggle
+    function toggleTOC(){
+      const open = app.classList.toggle('toc-open');
+      tocToggle.setAttribute('aria-expanded', String(open));
+    }
+    tocToggle.addEventListener('click', toggleTOC);
+    tocToggle.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleTOC(); }
+    });
+
+    // Générer la liste des chapitres depuis les sections .chapter
+    const chapters = Array.from(document.querySelectorAll('section.chapter'));
+    chapters.forEach(sec=>{
+      const id = sec.id;
+      const title = sec.dataset.title || sec.querySelector('h2')?.textContent?.trim() || id;
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = title;
+      a.setAttribute('data-id', id);
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+
+    // Scroll Spy via IntersectionObserver
+    const links = Array.from(tocList.querySelectorAll('a'));
+    const byId = Object.fromEntries(links.map(a=>[a.dataset.id, a]));
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const id = entry.target.id;
+          links.forEach(l=>l.classList.toggle('active', l.dataset.id === id));
+        }
+      });
+    }, {
+      rootMargin: '-30% 0px -60% 0px',
+      threshold: 0.1
+    });
+    chapters.forEach(sec=>observer.observe(sec));
+
+    // Cliquer un lien = fermeture du TOC en mobile
+    links.forEach(a=>{
+      a.addEventListener('click', ()=>{
+        if(!mqLarge.matches){
+          app.classList.remove('toc-open');
+          tocToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+
+    // Onglets (Chapitres / Mots-clés)
+    const tabCh = document.getElementById('tab-chapitres');
+    const tabMo = document.getElementById('tab-mots');
+    const panelCh = document.getElementById('panel-chapitres');
+    const panelMo = document.getElementById('panel-mots');
+
+    function activateTab(target){
+      const isCh = target === 'chapitres';
+      tabCh.setAttribute('aria-selected', String(isCh));
+      tabMo.setAttribute('aria-selected', String(!isCh));
+      panelCh.classList.toggle('active', isCh);
+      panelMo.classList.toggle('active', !isCh);
+    }
+    tabCh.addEventListener('click', ()=>activateTab('chapitres'));
+    tabMo.addEventListener('click', ()=>activateTab('mots'));
+
+    // Badges mots-clés -> saut vers chapitre
+    document.getElementById('keywords').addEventListener('click', (e)=>{
+      const btn = e.target.closest('.badge');
+      if(!btn) return;
+      const target = btn.getAttribute('data-jump');
+      if(target){
+        document.querySelector(target)?.scrollIntoView({behavior:'smooth', block:'start'});
+        if(!mqLarge.matches){
+          app.classList.remove('toc-open');
+          tocToggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+
+    // Correction du focus après navigation par ancre
+    window.addEventListener('hashchange', ()=>{
+      const id = location.hash.slice(1);
+      const el = document.getElementById(id);
+      if(el){ el.setAttribute('tabindex','-1'); el.focus({preventScroll:true}); }
+    }, {passive:true});
+  </script>
+</body>
+</html>
+``
