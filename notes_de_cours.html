@@ -466,23 +466,151 @@
         <header>
           <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" alt="Logo Python" style="width: 50px; margin-bottom: 1rem;">
           <h2>Python</h2>
-          <p>Bases, structures de données, environnements, tests.</p>
+          <p>Bases, structures de données, environnements et programmation objet.</p>
         </header>
+      
+        <style>
+          /* Coloration syntaxique style W3Schools */
+          .py-type { color: #2196F3; font-weight: bold; } /* int, str, list */
+          .py-obj  { color: #ff9800; font-weight: bold; } /* Classes/Objets */
+          .py-kw   { color: #ff0000; }                   /* Keywords */
+          .py-com  { color: #4caf50; font-style: italic; } /* Commentaires */
+        </style>
+      
         <div class="grid-2">
           <div class="card">
-            <h3>Environnements</h3>
-            <ul>
-              <li><span class="accent">venv</span> : <span class="kbd">python -m venv .venv</span>, activer et installer les dépendances.</li>
-              <li>Bonnes pratiques : <code>.gitignore</code> pour <code>.venv/</code> et <code>__pycache__/</code>.</li>
-            </ul>
+            <h3>1) Variables Globales</h3>
+            <pre><code>x = <span class="py-type">10</span>  <span class="py-com"># Variable globale (scope module)</span>
+      <span class="py-kw">def</span> func():
+          <span class="py-kw">global</span> x  <span class="py-com"># Référence à la globale</span>
+          x += <span class="py-type">5</span>  <span class="py-com"># Modification directe</span>
+      <span class="py-com"># ---</span>
+      y = <span class="py-type">"Bot"</span>  <span class="py-com"># Chaîne globale</span>
+      <span class="py-kw">def</span> greet():
+          <span class="py-kw">print</span>(y)  <span class="py-com"># Lecture autorisée sans mot-clé</span></code></pre>
           </div>
+      
           <div class="card">
-            <h3>Tests rapides</h3>
-            <pre><code># Exemple
-def pair(n: int) -> bool:
-    return n % 2 == 0
-
-assert pair(4)</code></pre>
+            <h3>2) Variables Locales</h3>
+            <pre><code><span class="py-kw">def</span> calcul():
+          val = <span class="py-type">42</span>  <span class="py-com"># Locale au bloc de fonction</span>
+          <span class="py-kw">return</span> val * <span class="py-type">2</span>
+      <span class="py-com"># ---</span>
+      <span class="py-kw">for</span> i <span class="py-kw">in</span> <span class="py-type">range</span>(<span class="py-type">3</span>):
+          temp = i + <span class="py-type">1</span>  <span class="py-com"># Locale à la boucle</span>
+          <span class="py-kw">print</span>(temp)</code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>3) Variables Arguments</h3>
+            <pre><code><span class="py-kw">def</span> somme(*args: <span class="py-type">int</span>): <span class="py-com"># Tuple d'arguments</span>
+          <span class="py-kw">return</span> <span class="py-type">sum</span>(args)
+      <span class="py-com"># ---</span>
+      <span class="py-kw">def</span> config(**kwargs): <span class="py-com"># Dico d'arguments nommés</span>
+          <span class="py-kw">print</span>(kwargs[<span class="py-type">"id"</span>])</code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>4) Variables Membres (Attributs)</h3>
+            <pre><code><span class="py-kw">class</span> <span class="py-obj">Robot</span>:
+          <span class="py-kw">def</span> __init__(self):
+              self.vitesse = <span class="py-type">0</span> <span class="py-com"># Membre d'instance</span>
+      <span class="py-com"># ---</span>
+      <span class="py-kw">class</span> <span class="py-obj">Data</span>:
+          count = <span class="py-type">0</span> <span class="py-com"># Membre de classe (statique)</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>5) Thread & Callback</h3>
+            <pre><code><span class="py-kw">import</span> threading
+      <span class="py-kw">def</span> task(cb): cb(<span class="py-type">"Fini"</span>) <span class="py-com"># Exécute callback</span>
+      t = threading.Thread(target=task, args=(<span class="py-type">print</span>,))
+      t.start() <span class="py-com"># Lance le thread</span>
+      <span class="py-com"># ---</span>
+      <span class="py-kw">def</span> on_click(): <span class="py-kw">pass</span> <span class="py-com"># Fonction callback</span>
+      timer = threading.Timer(<span class="py-type">1.0</span>, on_click).start()</code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>6) Array (List)</h3>
+            <pre><code>moteurs = [<span class="py-type">"A"</span>, <span class="py-type">"B"</span>, <span class="py-type">"C"</span>] <span class="py-com"># Liste de str</span>
+      moteurs.append(<span class="py-type">"D"</span>) <span class="py-com"># Ajout dynamique</span>
+      <span class="py-com"># ---</span>
+      lectures = [<span class="py-type">0</span>] * <span class="py-type">5</span> <span class="py-com"># Liste de 5 zéros (int)</span>
+      lectures[<span class="py-type">0</span>] = <span class="py-type">100</span> <span class="py-com"># Accès par index</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>7) Array 2D (Matrix)</h3>
+            <pre><code>grid = [[<span class="py-type">0</span>, <span class="py-type">1</span>], [<span class="py-type">2</span>, <span class="py-type">3</span>]] <span class="py-com"># Liste de listes</span>
+      val = grid[<span class="py-type">1</span>][<span class="py-type">0</span>] <span class="py-com"># Accès ligne 1, col 0</span>
+      <span class="py-com"># ---</span>
+      table = [[x <span class="py-kw">for</span> x <span class="py-kw">in</span> <span class="py-type">range</span>(<span class="py-type">2</span>)] <span class="py-kw">for</span> y <span class="py-kw">in</span> <span class="py-type">range</span>(<span class="py-type">2</span>)]</code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>8) Dictionnaire</h3>
+            <pre><code>user = {<span class="py-type">"id"</span>: <span class="py-type">1</span>, <span class="py-type">"nom"</span>: <span class="py-type">"R2"</span>} <span class="py-com"># Clé:Valeur</span>
+      <span class="py-kw">print</span>(user[<span class="py-type">"nom"</span>]) <span class="py-com"># Accès par clé</span>
+      <span class="py-com"># ---</span>
+      pins = <span class="py-type">dict</span>(led=<span class="py-type">18</span>, button=<span class="py-type">23</span>) <span class="py-com"># Constructeur</span>
+      pins[<span class="py-type">"led"</span>] = <span class="py-type">24</span> <span class="py-com"># Mutation de valeur</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>9) Tuple (Immuable)</h3>
+            <pre><code>pos = (<span class="py-type">10.5</span>, <span class="py-type">20.0</span>) <span class="py-com"># Coordonnées fixes</span>
+      x, y = pos <span class="py-com"># Unpacking (déstructuration)</span>
+      <span class="py-com"># ---</span>
+      rgb = (<span class="py-type">255</span>, <span class="py-type">0</span>, <span class="py-type">128</span>) <span class="py-com"># Couleurs constantes</span>
+      size = <span class="py-type">len</span>(rgb) <span class="py-com"># Taille constante</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>10) Objet (Instance)</h3>
+            <pre><code><span class="py-kw">class</span> <span class="py-obj">Point</span>: <span class="py-kw">pass</span>
+      p1 = <span class="py-obj">Point</span>() <span class="py-com"># Instanciation d'un objet</span>
+      p1.x = <span class="py-type">5</span> <span class="py-com"># Attribut dynamique</span>
+      <span class="py-com"># ---</span>
+      <span class="py-kw">import</span> datetime
+      now = datetime.datetime.now() <span class="py-com"># Objet date</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>11) Objet vs Dico vs JSON</h3>
+            <pre><code>obj = <span class="py-obj">User</span>(id=<span class="py-type">1</span>) <span class="py-com"># Objet (Méthodes + Etat)</span>
+      dico = {<span class="py-type">"id"</span>: <span class="py-type">1</span>} <span class="py-com"># Dico (Clés en mémoire)</span>
+      js = <span class="py-type">'{"id":1}'</span> <span class="py-com"># JSON (Chaîne de caractères)</span>
+      <span class="py-com"># ---</span>
+      <span class="py-com"># Accès: obj.id | dico["id"] | json.loads(js)</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>12) Comparaison Structures</h3>
+            <pre><code>a2d = [[<span class="py-type">1</span>, <span class="py-type">10</span>], [<span class="py-type">2</span>, <span class="py-type">20</span>]] <span class="py-com"># Array 2D (Indexé)</span>
+      dic = {<span class="py-type">1</span>: <span class="py-type">10</span>, <span class="py-type">2</span>: <span class="py-type">20</span>} <span class="py-com"># Dico (Recherche rapide)</span>
+      tup = [(<span class="py-type">1</span>, <span class="py-type">10</span>), (<span class="py-type">2</span>, <span class="py-type">20</span>)] <span class="py-com"># Array de Tuples</span>
+      <span class="py-com"># ---</span>
+      <span class="py-com"># Usage: Grille vs Map vs Liste de paires</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>13) Dictionnaire vers Objet</h3>
+            <pre><code>data = {<span class="py-type">"x"</span>: <span class="py-type">10</span>, <span class="py-type">"y"</span>: <span class="py-type">20</span>}
+      obj = <span class="py-type">type</span>(<span class="py-type">"Obj"</span>, (), data) <span class="py-com"># Création via type()</span>
+      <span class="py-com"># ---</span>
+      <span class="py-kw">class</span> <span class="py-obj">Point</span>:
+          <span class="py-kw">def</span> __init__(self, **d): self.__dict__.update(d)
+      p = <span class="py-obj">Point</span>(**data) <span class="py-com"># Mapping direct via __dict__</span></code></pre>
+          </div>
+      
+          <div class="card">
+            <h3>14) Héritage</h3>
+            <pre><code><span class="py-kw">class</span> <span class="py-obj">Capteur</span>: <span class="py-kw">def</span> lire(self): <span class="py-kw">pass</span>
+      <span class="py-kw">class</span> <span class="py-obj">Sonar</span>(<span class="py-obj">Capteur</span>): <span class="py-kw">pass</span> <span class="py-com"># Sonar hérite de Capteur</span>
+      <span class="py-com"># ---</span>
+      <span class="py-kw">class</span> <span class="py-obj">A</span>: x = <span class="py-type">1</span>
+      <span class="py-kw">class</span> <span class="py-obj">B</span>(<span class="py-obj">A</span>): y = <span class="py-type">2</span> <span class="py-com"># B possède x et y</span></code></pre>
           </div>
         </div>
       </section>
