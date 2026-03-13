@@ -169,6 +169,12 @@
       margin: 0 auto var(--space-8);
       box-shadow: var(--shadow);
     }
+    
+    /* Applique un décalage à toutes les sections et cartes cibles */
+    .section, .card {
+      scroll-margin-top: calc(var(--topbar-h) + 10px);
+    }
+
     .section > header h2{
       margin: 0 0 .25rem;
       font-size: clamp(1.35rem, 1.5vw + .9rem, 2rem);
@@ -341,6 +347,27 @@
     .chapter header{ margin-bottom: .5rem; }
     .chapter header p{ margin: 0; opacity: .85; }
 
+    /* Style pour les sous-chapitres dans la TOC */
+    .toc-sublist {
+      list-style: none;
+      margin: 0 0 0.5rem 1rem !important; /* Décalage à droite */
+      padding: 0;
+      border-left: 1px solid #e5e7eb;
+    }
+    .toc-sublist a {
+      font-size: 0.9rem;
+      color: #6b7280 !important;
+      padding: 0.2rem 0.5rem !important;
+    }
+    .toc-sublist a.active {
+      color: #1d4ed8 !important;
+      background: transparent !important;
+      font-weight: 600;
+      border-left: 2px solid #1d4ed8;
+      margin-left: -1px;
+      border-radius: 0;
+    }
+
     /* Utilitaires */
     .muted{ color: var(--muted); }
     .grid-2{
@@ -502,7 +529,7 @@
         </style>
       
         <div class="grid-2">
-          <div class="card">
+          <div class="card"id="py-global">
             <h3>Variables Globales</h3>
       <pre><code><span class="py-var">x</span> = <span class="py-num">10</span> <span class="py-com"># Globale</span>
 <span class="py-kw">def</span> <span class="py-fn">ma_fonction</span>():
@@ -510,7 +537,7 @@
 <span class="py-fn">ma_fonction</span>()</code></pre>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-local">
             <h3>Variables Locales</h3>
       <pre><code>
 my_global = "myglobal"
@@ -524,114 +551,96 @@ print(my_local)
 <img src="local.png"/>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-arg">
             <h3>Variables Arguments</h3>
             <img src="arguments.png"/>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-membre">
             <h3>Variables Membres</h3>
             <img src="membre.png"/>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-thread">
             <h3>Thread & Callback</h3>      
             <img src="thread.png"/>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-array">
             <h3>Array</h3>      
             <img src="array.png"/>
+            <img src="array_2.png"/>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-array2d">
             <h3>Array 2D</h3>
             <img src="array2d.png"/>
+            <img src="array2d_2.png"/>
+            <img src="array2d_3.png"/>
           </div>
       
-          <div class="card">
-            <h3>8) Dictionnaire</h3>
-      <pre><code>
-        <span class="py-var">d</span> = {<span class="py-str">"id"</span>: <span class="py-num">1</span>, <span class="py-str">"v"</span>: <span class="py-num">12</span>}
-      <span class="py-var">v</span> = <span class="py-var">d</span>.<span class="py-fn">get</span>(<span class="py-str">"v"</span>) <span class="py-com"># Safe get</span>
-      <span class="py-com"># ---</span>
-      <span class="py-var">d</span>[<span class="py-str">"new"</span>] = <span class="py-num">100</span> <span class="py-com"># Insert</span></code></pre>
+          <div class="card"id="py-dict">
+            <h3>Dictionnaire</h3>
+            <img src="dict.png"/>
+            <img src="dict_2.png"/>
+            <img src="array_dict.png"/>
+            <img src="array_dict_2.png"/>
           </div>
       
-          <div class="card">
+          <div class="card"id="py-tuple">
             <h3>Tuple</h3>      
             <img src="array_tuple.png"/>
             <img src="array_tuple2.png"/>
           </div>
       
           <div class="card">
-            <h3>10) Objet</h3>
-      <pre><code>
-        <span class="py-kw">class</span> <span class="py-type">User</span>: <span class="py-kw">pass</span>
-      <span class="py-var">u</span> = <span class="py-type">User</span>() <span class="py-com"># Instance</span>
-      <span class="py-com"># ---</span>
-      <span class="py-kw">from</span> <span class="py-var">math</span> <span class="py-kw">import</span> <span class="py-var">pi</span>
-      <span class="py-var">v</span> = <span class="py-fn">float</span>(<span class="py-num">3.14</span>) <span class="py-com"># Objet natif</span></code></pre>
+            <h3>Objet</h3>
+            <img src="objet.png"/>
+            <img src="array_objet.png"/>
           </div>
       
           <div class="card">
-            <h3>11) Obj vs Dico vs JSON</h3>
-      <pre><code>
-        <span class="py-var">o</span> = <span class="py-type">Point</span>(<span class="py-num">1</span>,<span class="py-num">2</span>) <span class="py-com"># Objet</span>
-      <span class="py-var">d</span> = {<span class="py-str">"x"</span>:<span class="py-num">1</span>, <span class="py-str">"y"</span>:<span class="py-num">2</span>} <span class="py-com"># Dico</span>
-      <span class="py-var">j</span> = <span class="py-str">'{"x":1}'</span> <span class="py-com"># JSON String</span>
-      <span class="py-com"># ---</span>
-      <span class="py-com"># JSON -> Dico via json.loads()</span></code></pre>
+            <h3>Obj vs Dico vs JSON</h3>
+      TBD
           </div>
       
           <div class="card">
-            <h3>12) 2D vs Dico vs TupleArray</h3>
-      <pre><code>
-        <span class="py-var">m2d</span> = [[<span class="py-num">1</span>, <span class="py-num">10</span>]] <span class="py-com"># Index</span>
-      <span class="py-var">dic</span> = {<span class="py-num">1</span>: <span class="py-num">10</span>} <span class="py-com"># Key-Lookup</span>
-      <span class="py-var">tup</span> = [(<span class="py-num">1</span>, <span class="py-num">10</span>)] <span class="py-com"># Records</span>
-      <span class="py-com"># ---</span>
-      <span class="py-com"># Dico est le plus rapide pour ID</span></code></pre>
-          </div>
+            <h3>2D vs Dico vs TupleArray</h3>
+            TBD
+                </div>
       
           <div class="card">
-            <h3>13) Dictionnaire -> Objet</h3>
-      <pre><code>
-        <span class="py-var">d</span> = {<span class="py-str">"v"</span>: <span class="py-num">5</span>}
-      <span class="py-var">o</span> = <span class="py-type">type</span>(<span class="py-str">"O"</span>,(),<span class="py-var">d</span>) <span class="py-com"># Dyn</span>
-      <span class="py-com"># ---</span>
-      <span class="py-kw">class</span> <span class="py-type">A</span>: <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-var">s</span>,**<span class="py-var">k</span>): <span class="py-var">s</span>.<span class="py-var">__dict__</span>.<span class="py-fn">update</span>(<span class="py-var">k</span>)
-      <span class="py-var">obj</span> = <span class="py-type">A</span>(**<span class="py-var">d</span>) <span class="py-com"># Kwargs mapping</span></code></pre>
-          </div>
+            <h3>Dictionnaire -> Objet</h3>
+            TBD
+                </div>
       
           <div class="card">
-            <h3>14) Héritage</h3>
-      <pre><code>
-        <span class="py-kw">class</span> <span class="py-type">Parent</span>: <span class="py-var">x</span> = <span class="py-num">1</span>
-      <span class="py-kw">class</span> <span class="py-type">Child</span>(<span class="py-type">Parent</span>): <span class="py-var">y</span> = <span class="py-num">2</span>
-      <span class="py-com"># ---</span>
-      <span class="py-var">c</span> = <span class="py-type">Child</span>() <span class="py-com"># c.x vaut 1</span></code></pre>
+            <h3>Héritage</h3>
+            <img src="heritage.png"/>
+            <img src="heritage_2.png"/>
           </div>
+
         </div>
       </section>
 
       <section id="rpi" class="chapter section" data-title="RPi">
         <header>
           <img src="https://upload.wikimedia.org/wikipedia/en/c/cb/Raspberry_Pi_Logo.svg" alt="Logo Raspberry Pi" style="width: 50px; margin-bottom: 1rem;">
-          <h2>RPi</h2>
+          <h2>Raspberry Pi (RPi)</h2>
           <p>GPIO, SSH, services, déploiement léger.</p>
         </header>
         <div class="grid-2">
           <div class="card">
-            <h3>SSH & mise à jour</h3>
-            <pre><code>sudo raspi-config
-sudo apt update && sudo apt upgrade -y</code></pre>
+            <h3>RPi OS</h3>
+            Raspberry Pi OS est une variante de Linux, au même titre que Android et Chrome OS           
+          </div>
+          <div class="card">
+            <h3>Linux</h3>
+            Linux, créé par Linus Torvald, est un système d’exploitation (SE) au même titre que Windows et Mac        
           </div>
           <div class="card">
             <h3>GPIO</h3>
-            <pre><code># Python RPi.GPIO (exemple)
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)</code></pre>
+            TBD
           </div>
         </div>
       </section>
@@ -679,6 +688,57 @@ JOIN cours c ON c.id_e=e.id;</code></pre>
           </div>
         </div>
       </section>
+      
+      <section id="rest" class="chapter section" data-title="REST">
+        <header>
+          <h2>REST</h2>
+          <p class="muted">Appels serveur</p>
+        </header>
+        <div class="grid-2">
+          <div class="card" id="post">
+            <h3>POST</h3>
+            pensez à write, soit envoyer une information, par exemple ON pour allumer une DEL
+          </div>
+          <div class="card" id="get">
+            <h3>GET</h3>
+            Pensez à read, soit demander une information, par exemple le statut d’un bouton
+          </div>
+          <div class="card" id="flask">
+            <h3>Flask</h3>
+            Flask est un framework web, il créé un serveur codé en Python sur votre OS
+            Pour plus de détails: https://flask.palletsprojects.com/en/stable/quickstart/#a-minimal-application 
+          </div>
+          <div class="card" id="site_web">
+            <h3>Comment fonctionne un site web?</h3>
+            Lorsque le client (vous et Chrome) appelez un site (ex: google.ca), le site vous envoie un fichier *.html et Chrome ouvre le fichier automatiquement
+          </div>
+          <div class="card" id="dns">
+            <h3>DNS</h3>
+            Une table de référence qui permet de traduire google.ca en l’adresse IP publique (whatismyip.com) de Google et rejoindre l’ordinateur chez Google qui contient le fichier *.html
+          </div>
+          <div class="card" id="ip">
+            <h3>IP publique VS privée</h3>
+            Privée est sur un même réseau (LAN, par exemple, avec GG_TEP, 192.168.4.???) et publique est ouverte au monde (voir www.whatismyip.com)            
+          </div>
+        </div>
+      </section>
+      
+      <section id="écran tactile" class="chapter section" data-title="ÉCRAN TACTILE">
+        <header>
+          <h2>Écran tactile</h2>
+          <p class="muted">Nextion</p>
+        </header>
+        <div class="grid-2">
+          <div class="card" id="bouton_et_textfield">
+            <h3>Bouton et textfield</h3>
+            https://youtu.be/SV_YmC-sxvU 
+          </div>
+          <div class="card" id="gif">
+            <h3>GIF</h3>
+            https://youtu.be/dquPoMtppP8
+          </div>
+        </div>
+      </section>
 
       <section id="json" class="chapter section" data-title="JSON">
         <header>
@@ -687,6 +747,30 @@ JOIN cours c ON c.id_e=e.id;</code></pre>
         </header>
         <div class="grid-2">
           <div class="card">
+            <div class="card">
+              <h3>Pourquoi?</h3>
+              Format pour envoyer de l’information. 
+Par exemple, si j’ai besoin d’envoyer en même temps (pour être efficace) ON pour la DEL1 et OFF pour la DEL2, je pourrais faire:
+Option1 ( pas de JSON)
+<code>
+String message = "DEL1=ON,DEL2=OFF “;
+</code>
+Le récepteur devrait donc faire qqch comme:
+String del1Status = message[6] + message[7];
+String del2Status = message[14] + message[15] + message[16];
+if(del1Status == " ON "){
+    …
+}
+Option2 (avec JSON)
+String message = “{“isDel1On”:”true”, “isDel2On”:”false”}”;
+Le récepteur devrait donc faire qqch comme:
+DelStates delStates = JsonParser.parse(message);
+If(delStates.isDel1On){
+    …
+}
+On voit comment dans le 2e code on obtient directement le Boolean, sans avoir à comparer une String. Aussi, si jamais, dans l’option1, "DEL1=ON,DEL2=OFF “ devient "DEL2=ON,DEL1=OFF “, ou "DEL1=ON, DEL2=OFF “, le code ne fonctionne plus, alors que dands l’option2 rien ne changerait. Aussi, si DEL1 devient OFF, 14,15,16 doit devenir 15,16,17 et donc le code doit prendre cela en compte (pas fait ici). Finalement, en utilisant un standard, par exemple JSON, on évite d’avoir à écrire une documentation pour expliquer comment faire le code dans le récepteur (ie “6 et 7 pour del1 et 14, 15 et 16 pour del2)
+
+              </div>
             <h3>Format</h3>
             <pre><code>{"nom":"Antoine","cours":["Python","SQL"]}</code></pre>
           </div>
@@ -759,38 +843,63 @@ txt  = json.dumps(data, ensure_ascii=False, indent=2)</code></pre>
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleTOC(); }
     });
 
-    // Générer la liste des chapitres depuis les sections .chapter
+    // Générer la liste des chapitres ET des sous-chapitres (cartes)
     const chapters = Array.from(document.querySelectorAll('section.chapter'));
-    chapters.forEach(sec=>{
+
+    chapters.forEach(sec => {
       const id = sec.id;
       const title = sec.dataset.title || sec.querySelector('h2')?.textContent?.trim() || id;
+      
       const li = document.createElement('li');
       const a = document.createElement('a');
       a.href = '#' + id;
       a.textContent = title;
       a.setAttribute('data-id', id);
       li.appendChild(a);
+
+      // Chercher les cartes avec un ID dans cette section
+      const cards = Array.from(sec.querySelectorAll('.card[id]'));
+      if (cards.length > 0) {
+        const subUl = document.createElement('ul');
+        subUl.className = 'toc-sublist';
+        
+        cards.forEach(card => {
+          const cardId = card.id;
+          const cardTitle = card.querySelector('h3')?.textContent?.trim() || cardId;
+          const subLi = document.createElement('li');
+          const subA = document.createElement('a');
+          subA.href = '#' + cardId;
+          subA.textContent = cardTitle;
+          subA.setAttribute('data-id', cardId);
+          subLi.appendChild(subA);
+          subUl.appendChild(subLi);
+        });
+        li.appendChild(subUl);
+      }
+      
       tocList.appendChild(li);
     });
 
-    // Scroll Spy via IntersectionObserver
-    const links = Array.from(tocList.querySelectorAll('a'));
-    const byId = Object.fromEntries(links.map(a=>[a.dataset.id, a]));
-    const observer = new IntersectionObserver((entries)=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){
+    // Mettre à jour l'Observer pour inclure les sections ET les cartes
+    const allTrackedElements = Array.from(document.querySelectorAll('section.chapter, .card[id]'));
+    const allLinks = Array.from(tocList.querySelectorAll('a'));
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
           const id = entry.target.id;
-          links.forEach(l=>l.classList.toggle('active', l.dataset.id === id));
+          allLinks.forEach(l => l.classList.toggle('active', l.dataset.id === id));
         }
       });
     }, {
-      rootMargin: '-30% 0px -60% 0px',
+      rootMargin: '-10% 0px -70% 0px', // Ajusté pour être plus précis sur les petits éléments
       threshold: 0.1
     });
-    chapters.forEach(sec=>observer.observe(sec));
+
+    allTrackedElements.forEach(el => observer.observe(el));
 
     // Cliquer un lien = fermeture du TOC en mobile
-    links.forEach(a=>{
+    allLinks.forEach(a=>{
       a.addEventListener('click', ()=>{
         if(!mqLarge.matches){
           app.classList.remove('toc-open');
